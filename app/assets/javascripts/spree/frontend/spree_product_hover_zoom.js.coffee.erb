@@ -1,0 +1,48 @@
+add_image_handlers = ->
+  ($ '#main-image').data 'selectedThumb', ($ '#main-image img').attr('src')
+  ($ 'ul.thumbnails li').eq(0).addClass 'selected'
+  ($ 'ul.thumbnails li').on 'mouseenter', (event) ->
+    ($ '#main-image').data 'selectedThumb', ($ event.currentTarget).find('a').attr('href')
+    ($ '#main-image').data 'selectedThumbId', ($ event.currentTarget).find('a').parent().attr('id')
+    ($ 'ul.thumbnails').find('li').removeClass 'selected'
+    ($ event.currentTarget).addClass 'selected'
+    
+    ($ '#main-image img').first().attr 'src', ($ event.currentTarget).find('a').attr('href')
+    ($ '[data-drift]').first().attr 'href', ($ event.currentTarget).find('a').attr('href')
+    ($ '[data-drift]').first().attr 'href', ($ event.currentTarget).find('a').data('large')
+    false
+
+window.SpreeProductHoverZoom = {
+  zoomFactor: 4,
+  handleTouch: true,
+  touchDelay: 0,
+}
+
+$ ->
+  add_image_handlers()
+
+  el_drift = $('[data-drift]')[0]
+
+  driftOptions =
+    paneContainer: $('[data-hook=product_hover_zoom]')[0]
+    zoomFactor: SpreeProductHoverZoom.zoomFactor
+    sourceAttribute: 'href'
+    handleTouch: SpreeProductHoverZoom.handleTouch
+    touchDelay: SpreeProductHoverZoom.touchDelay
+
+  new Drift(el_drift, driftOptions) if (el_drift && $(el_drift).attr('href').length > 0)
+
+  # Single zoom view for main product image
+  # new Luminous($('[data-luminous]')[0]);
+  # do nothing on main product image click
+  $('[data-luminous]').on 'click', (e) ->
+    e.preventDefault()
+    return
+
+  # Gallery view for thumbnails
+
+  # Whether pressing the arrow keys should move to the next/previous slide.
+  galleryOpts = arrowNavigation: true
+  # These options have the same defaults and potential values as the Luminous class.
+  luminousOpts = {}
+  new LuminousGallery($('ul.thumbnails > li > a'), galleryOpts, luminousOpts)
